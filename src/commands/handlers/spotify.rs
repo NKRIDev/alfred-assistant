@@ -8,9 +8,13 @@ Launch spotify app
 pub struct SpotifyCommand;
 
 impl CommandHandler for SpotifyCommand {
-    fn execute(&self) {
+    fn execute(&self) -> String{
         let spotify_path = env::var("SPOTIFY_PATH")
             .expect("SPOTIFY_PATH is missing in .env");
-        Command::new(spotify_path).spawn().expect("Spotify command failed to start");
+
+        match Command::new(spotify_path).spawn() {
+            Ok(output) => {String::from("Spotify started successfully !")},
+            Err(_) => {String::from("Spotify command failed to start.")}
+        }
     }
 }

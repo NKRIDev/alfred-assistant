@@ -22,8 +22,9 @@ pub fn start_alfred() {
     loop {
         println!("> ");
         let input = input_command();
-        action_command(&input);
-        
+        let reply = action_command(&input);
+        println!("{}", reply);
+
         //Check if input is "quit", break loop
         if input == "quit" {
             break;

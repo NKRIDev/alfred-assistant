@@ -41,25 +41,25 @@ fn parse_command(input: &str) -> Command {
 /*
 Executes the action of the requested command
  */
-pub fn action_command(input: &str) {
+pub fn action_command(input: &str) -> String{
     let command_type: Command = parse_command(input);
 
     match command_type {
         Command::Hello => {
-            HelloCommand.execute();
+            HelloCommand.execute()
         },
         Command::Time => {
-            TimeCommand.execute();
+            TimeCommand.execute()
         },
         Command::Quit => {
-            QuitCommand.execute();
+            QuitCommand.execute()
         },
         Command::Firefox => {
-            FirefoxCommand.execute();
+            FirefoxCommand.execute()
         }
         Command::Spotify => {
-            SpotifyCommand.execute();
+            SpotifyCommand.execute()
         }
-        Command::Unkown => { println!("Command inconnue."); },
+        Command::Unkown => { String::from("Command inconnue.")},
     }
 }
