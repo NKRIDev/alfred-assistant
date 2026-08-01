@@ -1,0 +1,74 @@
+# Build artifacts
+target/
+
+# Cargo.lock
+# Keep Cargo.lock for applications and binaries.
+# Uncomment the next line only for libraries.
+# Cargo.lock
+
+# IDE - IntelliJ IDEA / RustRover
+
+# IntelliJ project files
+.idea/
+
+# Project settings
+*.iml
+*.ipr
+*.iws
+
+# JetBrains cache
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries/
+.idea/**/shelf/
+
+# Local history
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.xml
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+
+# Operating System
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Environment files
+
+.env
+.env.*
+!.env.example
+
+# Logs
+
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Generated files
+*.generated.rs
+
+# Coverage / profiling
+coverage/
+*.profraw
+*.profdata
+
+# Documentation builds
+/book/
