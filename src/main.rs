@@ -1,3 +1,7 @@
+pub mod cli;
+pub mod commands;
+
 fn main() {
-    println!("Welcome ! I'm Alfred Assistant");
+    //Start alfred loop
+    cli::start_alfred();
 }
