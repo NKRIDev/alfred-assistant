@@ -1,6 +1,5 @@
 use std::io;
-use crate::commands::action_command;
-
+use crate::commands::registry::init_commands;
 /*
 Returns the value the user enters in the console
  */
@@ -16,13 +15,16 @@ Main loop
 pub fn start_alfred() {
     println!("Welcome to Alfred Assistant");
 
+    //Init registry command system
+    let registry = init_commands();
+
     /*
     Alfred loop
      */
     loop {
         println!("> ");
         let input = input_command();
-        let reply = action_command(&input);
+        let reply = registry.execute(&input);
         println!("{}", reply);
 
         //Check if input is "quit", break loop
