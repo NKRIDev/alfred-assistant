@@ -9,8 +9,9 @@ use crate::commands::handlers::{
     hello::HelloCommand,
     time::TimeCommand,
     quit::QuitCommand,
+    firefox::FirefoxCommand,
 };
-
+use crate::commands::handlers::spotify::SpotifyCommand;
 /*
 List of the various commands
  */
@@ -18,6 +19,8 @@ enum Command{
     Hello,
     Time,
     Quit,
+    Firefox,
+    Spotify,
     Unkown,
 }
 
@@ -29,6 +32,8 @@ fn parse_command(input: &str) -> Command {
         "hello" | "bonjour" => Command::Hello,
         "quit" => Command::Quit,
         "heure" | "time" => Command::Time,
+        "firefox" => Command::Firefox,
+        "spotify" | "music" => Command::Spotify,
         _ => Command::Unkown
     }
 }
@@ -49,6 +54,12 @@ pub fn action_command(input: &str) {
         Command::Quit => {
             QuitCommand.execute();
         },
+        Command::Firefox => {
+            FirefoxCommand.execute();
+        }
+        Command::Spotify => {
+            SpotifyCommand.execute();
+        }
         Command::Unkown => { println!("Command inconnue."); },
     }
 }
