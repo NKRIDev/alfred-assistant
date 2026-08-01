@@ -7,3 +7,5 @@ edition = "2021"
 chrono-tz = "0.10.4"
 chrono = "0.4.45"
 dotenvy = "0.15.7"
+serde = { version = "1.0.229", features = ["derive"] }
+toml = "0.8"

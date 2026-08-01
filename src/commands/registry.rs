@@ -7,6 +7,7 @@ use crate::commands::handlers::hello::HelloCommand;
 use crate::commands::handlers::open::OpenCommand;
 use crate::commands::handlers::quit::QuitCommand;
 use crate::commands::handlers::time::TimeCommand;
+use crate::services::application::ApplicationService;
 
 pub struct CommandRegistry {
     commands: HashMap<String, Box<dyn CommandHandler>>,
@@ -44,12 +45,12 @@ impl CommandRegistry {
 /*
 Register Alfred commands
  */
-pub fn init_commands() -> CommandRegistry{
+pub fn init_commands(app_service : ApplicationService) -> CommandRegistry{
     let mut command_registry = CommandRegistry::new();
 
     command_registry.register(String::from("hello"), Box::new(HelloCommand));
     command_registry.register(String::from("time"), Box::new(TimeCommand));
-    command_registry.register(String::from("open"), Box::new(OpenCommand));
+    command_registry.register(String::from("open"), Box::new(OpenCommand::new(app_service)));
     command_registry.register(String::from("quit"), Box::new(QuitCommand));
 
     command_registry

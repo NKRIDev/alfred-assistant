@@ -1,6 +1,7 @@
 use std::io;
 use crate::commands::parser::parser;
 use crate::commands::registry::init_commands;
+use crate::services::application::ApplicationService;
 /*
 Returns the value the user enters in the console
  */
@@ -13,11 +14,11 @@ fn input_command() -> String {
 /*
 Main loop
  */
-pub fn start_alfred() {
+pub fn start_alfred(app_service: ApplicationService) {
     println!("Welcome to Alfred Assistant");
 
     //Init registry command system
-    let registry = init_commands();
+    let registry = init_commands(app_service);
 
     /*
     Alfred loop
