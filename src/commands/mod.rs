@@ -1,13 +1,15 @@
 /*
 Managing commands: routing and actions
  */
-mod time;
-mod hello;
-mod quit;
+mod command;
+mod handlers;
 
-use crate::commands::hello::handle_hello;
-use crate::commands::time::handle_time;
-use crate::commands::quit::handle_quit;
+use crate::commands::command::CommandHandler;
+use crate::commands::handlers::{
+    hello::HelloCommand,
+    time::TimeCommand,
+    quit::QuitCommand,
+};
 
 /*
 List of the various commands
@@ -34,13 +36,19 @@ fn parse_command(input: &str) -> Command {
 /*
 Executes the action of the requested command
  */
-pub fn action_command(input: &str) -> String{
+pub fn action_command(input: &str) {
     let command_type: Command = parse_command(input);
 
     match command_type {
-        Command::Hello => handle_hello(),
-        Command::Time => handle_time(),
-        Command::Quit => handle_quit(),
-        Command::Unkown => String::from("Commande inconnue"),
+        Command::Hello => {
+            HelloCommand.execute();
+        },
+        Command::Time => {
+            TimeCommand.execute();
+        },
+        Command::Quit => {
+            QuitCommand.execute();
+        },
+        Command::Unkown => { println!("Command inconnue."); },
     }
 }
