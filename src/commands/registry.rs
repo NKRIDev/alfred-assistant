@@ -3,10 +3,9 @@ Register assistant commands
  */
 use std::collections::HashMap;
 use crate::commands::command::CommandHandler;
-use crate::commands::handlers::firefox::FirefoxCommand;
 use crate::commands::handlers::hello::HelloCommand;
+use crate::commands::handlers::open::OpenCommand;
 use crate::commands::handlers::quit::QuitCommand;
-use crate::commands::handlers::spotify::SpotifyCommand;
 use crate::commands::handlers::time::TimeCommand;
 
 pub struct CommandRegistry {
@@ -34,9 +33,9 @@ impl CommandRegistry {
     /*
     Execute command by name
      */
-    pub fn execute(&self, name: &str) -> String {
+    pub fn execute(&self, name: &str, args: &[String]) -> String {
         match self.commands.get(name) {
-            Some(command) => command.execute(),
+            Some(command) => command.execute(args),
             None => String::from("Commande inconnue."),
         }
     }
@@ -50,8 +49,7 @@ pub fn init_commands() -> CommandRegistry{
 
     command_registry.register(String::from("hello"), Box::new(HelloCommand));
     command_registry.register(String::from("time"), Box::new(TimeCommand));
-    command_registry.register(String::from("firefox"), Box::new(FirefoxCommand));
-    command_registry.register(String::from("spotify"), Box::new(SpotifyCommand));
+    command_registry.register(String::from("open"), Box::new(OpenCommand));
     command_registry.register(String::from("quit"), Box::new(QuitCommand));
 
     command_registry

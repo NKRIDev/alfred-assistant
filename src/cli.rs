@@ -1,4 +1,5 @@
 use std::io;
+use crate::commands::parser::parser;
 use crate::commands::registry::init_commands;
 /*
 Returns the value the user enters in the console
@@ -24,7 +25,8 @@ pub fn start_alfred() {
     loop {
         println!("> ");
         let input = input_command();
-        let reply = registry.execute(&input);
+        let parser = parser(&input);
+        let reply = registry.execute(&parser.name, &parser.args);
         println!("{}", reply);
 
         //Check if input is "quit", break loop

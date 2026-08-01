@@ -7,7 +7,7 @@ use std::process;
 pub struct QuitCommand;
 
 impl CommandHandler for QuitCommand {
-    fn execute(&self) -> String{
+    fn execute(&self, _: &[String]) -> String{
         process::exit(0);
     }
 }

@@ -2,5 +2,5 @@
 Command interface
  */
 pub trait CommandHandler {
-    fn execute(&self) -> String;
+    fn execute(&self, args: &[String]) -> String;
 }

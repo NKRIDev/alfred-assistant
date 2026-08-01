@@ -9,7 +9,7 @@ use crate::commands::command::CommandHandler;
 pub struct TimeCommand;
 
 impl CommandHandler for TimeCommand {
-    fn execute(&self) -> String{
+    fn execute(&self, _: &[String]) -> String{
         let paris_time = Utc::now().with_timezone(&Paris);
         paris_time.format("%H:%M:%S").to_string()
     }
