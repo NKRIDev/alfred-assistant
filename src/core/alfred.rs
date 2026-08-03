@@ -1,3 +1,4 @@
+use std::fmt::format;
 use std::fs;
 use serde_json::{json, Value};
 use crate::commands::registry::CommandRegistry;
@@ -23,12 +24,20 @@ impl Alfred {
          */
         let memory = MemoryService::new(database).expect("Error opening memory database.");
 
+        //DEBUG : display all events
+        memory.dream();
+
+        /*
+        Create Alfred prompt
+         */
+        let prompt = format!("{}\n\n{}", system_prompt, MemoryService::load_term_memory());
+
         /*
         Create conversation history
          */
         let system_conv = json!({
             "role": "system",
-            "content": system_prompt,
+            "content": prompt,
         });
         let mut history = vec![system_conv];
 
@@ -36,13 +45,13 @@ impl Alfred {
         Retrieve past conversations stored in the
         database to provide them as context to the LLM
          */
-        if let Ok(events) = memory.get_all(){
+        if let Ok(events) = memory.get_role_content(){
 
             for event in &events {
                 history.push(json!({ "role": event.0, "content": event.1 }));
             }
         }
-        
+
         Self{
             model,
             system_prompt,
