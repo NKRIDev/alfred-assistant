@@ -2,7 +2,6 @@ pub mod cli;
 pub mod commands;
 mod services;
 mod core;
-
 use dotenvy::dotenv;
 use crate::commands::registry::init_commands;
 use crate::core::alfred::Alfred;
@@ -23,5 +22,5 @@ fn main() {
                              registry);
 
     //Start alfred loop
-    cli::start_alfred(&alfred);
+    cli::start_alfred(alfred);
 }

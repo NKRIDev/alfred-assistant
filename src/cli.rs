@@ -13,7 +13,7 @@ fn input_command() -> String {
 /*
 Main loop
  */
-pub fn start_alfred(alfred: &Alfred) {
+pub fn start_alfred(mut alfred: Alfred) {
     println!("Welcome to Alfred Assistant");
 
     /*
@@ -23,7 +23,7 @@ pub fn start_alfred(alfred: &Alfred) {
         println!("> ");
         let input = input_command();
       //  let parser = parser(&input);
-        let reply = Orchestrator::ask_alfred(&input, &alfred);
+        let reply = Orchestrator::ask_alfred(&input, &mut alfred);
         println!("{}", reply);
 
         //Check if input is "quit", break loop
