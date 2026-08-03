@@ -4,20 +4,20 @@ the LLM used
  */
 use std::collections::HashMap;
 use serde_json::{json, Value};
-use crate::commands::registry::CommandRegistry;
+use crate::core::alfred::Alfred;
 use crate::services::ollama::OllamaService;
 
 pub struct Orchestrator;
 
 impl Orchestrator {
 
-    pub fn ask_alfred(user_input: &str, registry: &CommandRegistry, system_prompt: &str) -> String {
+    pub fn ask_alfred(user_input: &str, alfred: &Alfred) -> String {
         /*
         Build conversation
          */
-        let tools = registry.build_tools();
+        let tools = alfred.registry.build_tools();
         let mut messages = vec![
-            json!({ "role": "system", "content": system_prompt }), //Alfred rules+system
+            json!({ "role": "system", "content": alfred.system_prompt }), //Alfred rules+system
             json!({ "role": "user", "content": user_input }), //User input, question, words etc.
         ];
 
@@ -51,7 +51,7 @@ impl Orchestrator {
                             })
                             .unwrap_or_default();
 
-                        let tool_result = registry.execute(name, &args);
+                        let tool_result = alfred.registry.execute(name, &args);
                         messages.push(json!({ "role": "tool", "content": tool_result }));
                     }
                 }

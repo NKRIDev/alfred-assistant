@@ -6,7 +6,7 @@ pub struct OllamaService;
 impl OllamaService {
 
     /*
-
+    Call ollama serve
      */
     pub fn chat(messages: &Value, tools: &Value) -> Value {
         /*
