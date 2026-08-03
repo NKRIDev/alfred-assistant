@@ -1,4 +1,3 @@
-use std::fmt::format;
 use std::fs;
 use serde_json::{json, Value};
 use crate::commands::registry::CommandRegistry;

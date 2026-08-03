@@ -12,10 +12,8 @@ pub struct MemoryService{
 }
 
 pub struct MemoryEvent {
-    id: i64,
     role: String,
     content: String,
-    tool_name: Option<String>,
     created_at: String
 }
 
@@ -63,6 +61,14 @@ impl MemoryService {
     }
 
     /*
+    Remove all events
+     */
+    pub fn clear_events(&self) -> Result<()> {
+        self.connection.execute("DELETE FROM events", [])?;
+        Ok(())
+    }
+
+    /*
     Retrieve all wind data from the database.
      */
     pub fn get_role_content(&self) -> Result<Vec<(String, String)>> {
@@ -83,10 +89,8 @@ impl MemoryService {
         let mut prepared_statement = self.connection.prepare(query)?;
         let results = prepared_statement.query_map([], |row| {
             Ok(MemoryEvent{
-                id: row.get(0)?,
                 role: row.get(1)?,
                 content: row.get(2)?,
-                tool_name: row.get(3)?,
                 created_at: row.get(4)?,
             })
         })?.collect::<Result<Vec<_>, _>>()?;
@@ -148,8 +152,19 @@ impl MemoryService {
             - Do not duplicate information across categories.\n\n\
             Extract and organize into these categories:\n\n\
             - SEMANTIC MEMORY (facts): stable, context-independent facts about who the user is\n\
-            - PROCEDURAL MEMORY (user-specific adjustments): ONLY explicit deviations from Alfred's default behavior \
-            that this specific user requested\n\
+            - PROCEDURAL MEMORY (user-specific adjustments): Include something here ONLY if the USER explicitly \
+            asked Alfred to change how it behaves (e.g. the user literally said something like \
+            'appelle-moi X', 'sois moins formel', 'réponds plus court'). \
+            \n\n\
+            DO NOT include anything here based on how Alfred itself spoke in the log — Alfred's own tone, \
+            word choice, or way of addressing the user is NEVER a source for this category, even if repeated \
+            consistently. Only the USER's explicit requests count. \
+            \n\n\
+            Test before including anything here: can you point to a specific message FROM THE USER (not from Alfred) \
+            that explicitly requested this behavior? If not, do not include it. \
+            \n\n\
+            Example of what NOT to include: 'Alfred addresses the user formally' — this describes Alfred's \
+            own behavior, not a user request, so it must be excluded even if true in the log.\n\
             - EPISODIC MEMORY (events): specific decisions or events tied to a moment, with context\n\
             - ACTIVE GOALS: what the user is currently working on or has not yet resolved\n\n\
             STRICTLY EXCLUDE any information that is time-sensitive or reflects a snapshot of the world \
@@ -191,6 +206,11 @@ impl MemoryService {
         if let Err(e) = fs::write("memory/memory.md", &summary) {
             return format!("Error writing memory.md : {}", e);
         }
+
+        /*
+        Delete all events
+         */
+        self.clear_events().ok();
 
         format!("memory.md successfully generated ({} events processed", events.len())
     }

@@ -33,7 +33,7 @@ impl OllamaService {
         Add time out on llm
          */
         let client = reqwest::blocking::Client::builder()
-            .timeout(Duration::from_secs(120))//2 min timeout
+            .timeout(Duration::from_secs(300))//5 min timeout
             .build()
             .expect("Unable to build the HTTP client");
 
