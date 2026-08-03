@@ -1,3 +1,6 @@
+# Alfred ignore
+.datas/
+
 # Build artifacts
 target/
 

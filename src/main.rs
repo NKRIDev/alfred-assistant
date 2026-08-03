@@ -19,7 +19,7 @@ fn main() {
 
     //init alfred core
     let alfred = Alfred::new("qwen3:4b-instruct".to_string(), "skills/alfred.md".to_string(),
-                             registry);
+                             "datas/events.db".to_string(), registry);
 
     //Start alfred loop
     cli::start_alfred(alfred);
