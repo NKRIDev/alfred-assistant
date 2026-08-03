@@ -1,6 +1,6 @@
 use std::io;
-use crate::commands::parser::parser;
 use crate::commands::registry::init_commands;
+use crate::core::orchestrator::Orchestrator;
 use crate::services::application::ApplicationService;
 /*
 Returns the value the user enters in the console
@@ -14,7 +14,7 @@ fn input_command() -> String {
 /*
 Main loop
  */
-pub fn start_alfred(app_service: ApplicationService) {
+pub fn start_alfred(app_service: ApplicationService, system_prompt: String) {
     println!("Welcome to Alfred Assistant");
 
     //Init registry command system
@@ -26,8 +26,8 @@ pub fn start_alfred(app_service: ApplicationService) {
     loop {
         println!("> ");
         let input = input_command();
-        let parser = parser(&input);
-        let reply = registry.execute(&parser.name, &parser.args);
+      //  let parser = parser(&input);
+        let reply = Orchestrator::ask_alfred(&input, &registry, &system_prompt);
         println!("{}", reply);
 
         //Check if input is "quit", break loop
