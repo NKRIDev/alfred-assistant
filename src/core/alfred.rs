@@ -14,7 +14,7 @@ impl Alfred {
     pub fn new(model: String, skill_path: String, registry: CommandRegistry) -> Self {
         let system_prompt = fs::read_to_string(skill_path)
             .unwrap_or_else(|_| String::from("Tu es Alfred, un assistant utile."));
-
+        
         Self{
             model,
             system_prompt,
