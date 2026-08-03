@@ -41,4 +41,17 @@ impl MemoryService {
         self.connection.execute(query, params![role, content, tool_name, Utc::now().to_rfc3339()]);
         Ok(())
     }
+
+    /*
+    Retrieve all wind data from the database.
+     */
+    pub fn get_all(&self) -> Result<Vec<(String, String)>> {
+        let query = "SELECT role, content FROM events";
+        let mut prepared_statement = self.connection.prepare(query)?;
+        let results = prepared_statement.query_map([], |row| {
+            Ok((row.get(0)?, row.get(1)?))
+        })?;
+
+        Ok(results.filter_map(|res| res.ok()).collect())
+    }
 }

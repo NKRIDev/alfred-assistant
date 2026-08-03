@@ -30,7 +30,18 @@ impl Alfred {
             "role": "system",
             "content": system_prompt,
         });
-        let history = vec![system_conv];
+        let mut history = vec![system_conv];
+
+        /*
+        Retrieve past conversations stored in the
+        database to provide them as context to the LLM
+         */
+        if let Ok(events) = memory.get_all(){
+
+            for event in &events {
+                history.push(json!({ "role": event.0, "content": event.1 }));
+            }
+        }
         
         Self{
             model,
