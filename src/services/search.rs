@@ -7,7 +7,7 @@ impl SearchService {
     /*
     Performs an internet search with the ollama API
      */
-    pub fn get_search(search: String) -> String {
+    pub fn get_search(search: &str) -> String {
         let search = search.to_string();
 
         let handle = thread::spawn(move || -> String {
