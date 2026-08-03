@@ -116,6 +116,11 @@ impl MemoryService {
         }
 
         /*
+        Load actually long term memory
+         */
+        let existing_memory = fs::read_to_string("memory/memory.md").unwrap_or_default();
+
+        /*
         Build events list
          */
         let logs = events.iter()
@@ -130,43 +135,41 @@ impl MemoryService {
             "You are a memory consolidation system for an AI assistant named Alfred, \
             modeled after human long-term memory systems (Tulving, Squire): semantic, episodic, and procedural memory.\n\n\
             IMPORTANT CONTEXT: Alfred already has a fixed base personality and behavior rules defined elsewhere \
-            (butler tone, formal address, general interaction style). Do NOT restate or summarize that base behavior. \
-            Only capture information that is a SPECIFIC ADJUSTMENT or EXCEPTION this particular user has expressed, \
-            which overrides or refines the default behavior.\n\n\
-            Here is the raw log of recent interactions with the user:\n\n{}\n\n\
-            Extract information into these categories:\n\n\
-            - SEMANTIC MEMORY (facts): stable, context-independent facts about who the user is \
-            (name, location, occupation, general personal context)\n\
+            (butler tone, formal address, general interaction style). Do NOT restate or summarize that base behavior.\n\n\
+            Here is Alfred's EXISTING long-term memory (may be empty if this is the first consolidation):\n\n{}\n\n\
+            Here is the NEW raw log of recent interactions to integrate:\n\n{}\n\n\
+            Your task: MERGE the new information into the existing memory, producing a single updated version. \
+            - If new information confirms or adds detail to something already in memory, keep the most complete/recent version.\n\
+            - If new information CONTRADICTS existing memory (e.g. user moved to a new city), REPLACE the outdated fact \
+            with the new one — do not keep both.\n\
+            - If new information is genuinely new, add it to the appropriate category.\n\
+            - If an ACTIVE GOAL from existing memory appears to be resolved or completed based on the new log, \
+            move it out of ACTIVE GOALS (either drop it, or if significant, record it as a past event in episodic memory).\n\
+            - Do not duplicate information across categories.\n\n\
+            Extract and organize into these categories:\n\n\
+            - SEMANTIC MEMORY (facts): stable, context-independent facts about who the user is\n\
             - PROCEDURAL MEMORY (user-specific adjustments): ONLY explicit deviations from Alfred's default behavior \
-            that this specific user requested (e.g. 'wants to be called by first name instead of Monsieur', \
-            'prefers shorter answers than Alfred's default style'). Do NOT include Alfred's standard butler behavior — \
-            only what THIS user specifically asked to be different.\n\
-            - EPISODIC MEMORY (events): specific decisions or events tied to a moment, with enough context \
-            to understand why they matter — do not repeat facts already captured in semantic memory\n\
-            - ACTIVE GOALS: what the user is currently working on or has not yet resolved — distinct from \
-            long-term memory since it is expected to change or be completed\n\n\
-            STRICTLY EXCLUDE any information that is time-sensitive, tied to a specific moment, \
-            or that reflects a snapshot of the world rather than a lasting fact about the user \
-            (for example: real-time data, measurements, current status of something, one-off factual \
-            lookups with no lasting relevance to the user). \
-            If in doubt whether a piece of information will still be true or relevant in a week, exclude it. \
+            that this specific user requested\n\
+            - EPISODIC MEMORY (events): specific decisions or events tied to a moment, with context\n\
+            - ACTIVE GOALS: what the user is currently working on or has not yet resolved\n\n\
+            STRICTLY EXCLUDE any information that is time-sensitive or reflects a snapshot of the world \
+            rather than a lasting fact (real-time data, measurements, one-off lookups). \
+            If in doubt whether it will still be true in a week, exclude it. \
+            Ignore greetings, small talk, filler exchanges. \
+            Do not invent anything not explicitly stated in either the existing memory or the new log. \
             \
-            Ignore greetings, small talk, and filler exchanges. \
-            Do not invent or infer anything not explicitly stated in the log. \
+            CRITICAL FORMATTING RULE: if a category has no genuine content, omit that section header entirely. \
             \
-            CRITICAL FORMATTING RULE: if a category has no genuine content, DO NOT include that section \
-            header at all — skip it entirely. Only output headers that have real content underneath. \
-            \
-            If no durable information is found at all, respond with exactly: \
+            If the merged result has no durable information at all, respond with exactly: \
             'Aucune information marquante pour le moment.' \
             \
-            Write the summary in French, using these Markdown headers only when they have content:\n\n\
+            Write the result in French, using these Markdown headers only when they have content:\n\n\
             ## Mémoire sémantique — Faits\n\
             ## Mémoire procédurale — Ajustements spécifiques\n\
             ## Mémoire épisodique — Événements\n\
             ## Objectifs actifs\n\n\
-            Respond only with the Markdown content, no commentary or explanation.",
-            logs
+            Respond only with the merged Markdown content, no commentary or explanation.",
+            existing_memory, logs
         );
 
         /*
