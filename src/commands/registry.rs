@@ -6,9 +6,11 @@ use crate::commands::command::CommandHandler;
 use crate::commands::handlers::hello::HelloCommand;
 use crate::commands::handlers::open::OpenCommand;
 use crate::commands::handlers::quit::QuitCommand;
+use crate::commands::handlers::search::SearchCommand;
 use crate::commands::handlers::time::TimeCommand;
 use crate::commands::handlers::weather::WeatherCommand;
 use crate::services::application::ApplicationService;
+use crate::services::weather::WeatherService;
 
 pub struct CommandRegistry {
     commands: HashMap<String, Box<dyn CommandHandler>>,
@@ -53,6 +55,7 @@ pub fn init_commands(app_service : ApplicationService) -> CommandRegistry{
     command_registry.register(String::from("time"), Box::new(TimeCommand));
     command_registry.register(String::from("open"), Box::new(OpenCommand::new(app_service)));
     command_registry.register(String::from("weather"), Box::new(WeatherCommand));
+    command_registry.register(String::from("search"), Box::new(SearchCommand));
     command_registry.register(String::from("quit"), Box::new(QuitCommand));
 
     command_registry
