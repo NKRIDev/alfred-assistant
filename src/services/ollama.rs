@@ -1,4 +1,5 @@
 use std::env;
+use std::time::Duration;
 use serde_json::{json, Value};
 
 pub struct OllamaService;
@@ -29,14 +30,21 @@ impl OllamaService {
         };
 
         /*
+        Add time out on llm
+         */
+        let client = reqwest::blocking::Client::builder()
+            .timeout(Duration::from_secs(120))//2 min timeout
+            .build()
+            .expect("Unable to build the HTTP client");
+
+        /*
         Send request to ollama
          */
-        reqwest::blocking::Client::new()
-            .post(format!("{}/api/chat", ollama_api))
+        client.post(format!("{}/api/chat", ollama_api))
             .json(&body)
             .send()
-            .expect("Erreur requête Ollama")
+            .expect("Ollama request error")
             .json::<Value>()
-            .expect("Erreur parsing réponse Ollama")
+            .expect("Ollama error during json parsing")
     }
 }

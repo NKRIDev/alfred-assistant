@@ -11,27 +11,29 @@ pub struct Orchestrator;
 
 impl Orchestrator {
 
-    pub fn ask_alfred(user_input: &str, alfred: &Alfred) -> String {
+    pub fn ask_alfred(user_input: &str, alfred: &mut Alfred) -> String {
         /*
         Build conversation
          */
         let tools = alfred.registry.build_tools();
-        let mut messages = vec![
-            json!({ "role": "system", "content": alfred.system_prompt }), //Alfred rules+system
-            json!({ "role": "user", "content": user_input }), //User input, question, words etc.
-        ];
+
+        /*
+        Add user question to local conversation history
+         */
+        let user_content = json!({ "role": "user", "content": user_input });
+        alfred.history.push(user_content);
 
         loop {
             /*
             Call ollama service
             */
-            let response = OllamaService::chat(&Value::Array(messages.clone()), &tools);
+            let response = OllamaService::chat(&Value::Array(alfred.history.clone()), &tools);
 
             /*
             Add response to history
              */
             let message = response["message"].clone();
-            messages.push(message.clone());
+            alfred.history.push(message.clone());
 
             /*
             Check if LLM need tools
@@ -52,7 +54,7 @@ impl Orchestrator {
                             .unwrap_or_default();
 
                         let tool_result = alfred.registry.execute(name, &args);
-                        messages.push(json!({ "role": "tool", "content": tool_result }));
+                        alfred.history.push(json!({ "role": "tool", "content": tool_result }));
                     }
                 }
                 _ => {
