@@ -1,4 +1,5 @@
-use rusqlite::{Connection, Result};
+use chrono::Utc;
+use rusqlite::{params, Connection, Result};
 
 /*
 Connection link between the SQLite
@@ -30,5 +31,14 @@ impl MemoryService {
         ", [],)?;
 
         Ok(Self {connection})
+    }
+
+    /*
+    Adds an event to the database
+     */
+    pub fn log_event(&self, role: &str, content: &str, tool_name: Option<&str>) -> Result<()> {
+        let query = "INSERT INTO events (role, content, tool_name, created_at) VALUES (?1, ?2, ?3, ?4)";
+        self.connection.execute(query, params![role, content, tool_name, Utc::now().to_rfc3339()]);
+        Ok(())
     }
 }
