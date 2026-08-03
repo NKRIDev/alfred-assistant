@@ -1,0 +1,4 @@
+[applications]
+#app name = env name
+firefox = "FIREFOX_PATH"
+spotify = "SPOTIFY_PATH"
