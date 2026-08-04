@@ -37,6 +37,13 @@ impl MemoryService {
         let connection = Connection::open(database_path)?;
 
         /*
+        Multiple simultaneous readers, one writer + readers and
+        if the database is busy, wait 5 seconds before writing
+        */
+        connection.pragma_update(None, "journal_mode", "WAL")?;
+        connection.busy_timeout(std::time::Duration::from_secs(5))?;
+
+        /*
         Create table if not exist
          */
         connection.execute("\

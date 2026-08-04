@@ -16,15 +16,21 @@ impl DreamTimer {
      */
     pub fn start(database: String, timer: u64){
         thread::spawn(move || {
-            let memory_service = MemoryService::new(&database)
-                .expect("Error opening memory database.");
 
             loop {
                 thread::sleep(Duration::from_secs(timer));
 
-                println!("[SYSTEM] Auto Dream process started.");
-                println!("{}", memory_service.dream());
-                println!("[SYSTEM] Auto Dream cycle finished successfully.");
+                match MemoryService::new(&database) {
+                    Ok(service) => {
+                        println!("[SYSTEM] Auto Dream process started.");
+                        println!("{}", service.dream());
+                        println!("[SYSTEM] Auto Dream cycle finished successfully.");
+                    },
+                    Err(e) => {
+                        eprintln!("Error opening memory database: {}", e);
+                        continue;
+                    }
+                }
             }
         });
     }
