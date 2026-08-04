@@ -33,7 +33,7 @@ impl MemoryService {
     Created struct and init connection with
     database
      */
-    pub fn new(database_path: String) -> Result<Self> {
+    pub fn new(database_path: &str) -> Result<Self> {
         let connection = Connection::open(database_path)?;
 
         /*

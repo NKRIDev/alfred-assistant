@@ -1,6 +1,7 @@
 use std::fs;
 use serde_json::{json, Value};
 use crate::commands::registry::CommandRegistry;
+use crate::core::dream::DreamTimer;
 use crate::services::memory::MemoryService;
 /*
 Alfred's central information
@@ -21,10 +22,12 @@ impl Alfred {
         /*
         Load database
          */
-        let memory = MemoryService::new(database).expect("Error opening memory database.");
+        let memory = MemoryService::new(&database).expect("Error opening memory database.");
 
-        //DEBUG : display all events
-        memory.dream();
+        /*
+        Starting the timer for the dream run.
+         */
+        DreamTimer::start(database, 5);
 
         /*
         Create Alfred prompt
