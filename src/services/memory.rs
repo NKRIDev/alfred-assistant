@@ -212,7 +212,7 @@ impl MemoryService {
     }
 
 
-    pub fn finalization_dream(&self, summary: &str, events_count: usize) -> Result<String, String> {
+    pub fn finalization_dream(&self, summary: &str) -> Result<String, String> {
         /*
         Write file on memory folder
          */
@@ -225,7 +225,7 @@ impl MemoryService {
          */
         self.clear_events().map_err(|e| e.to_string())?;
 
-        Ok(format!("memory.md successfully generated ({} events processed)", events_count))
+        Ok(String::from("memory.md successfully generated !"))
     }
 
     /*
