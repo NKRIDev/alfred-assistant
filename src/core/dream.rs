@@ -32,21 +32,37 @@ impl DreamTimer {
                 {"role": "user", "content": prompt},
             ]);
 
-            if let Ok(response) = OllamaService::chat(&messages, &serde_json::json!([])).await {
-                let summary = response["message"]["content"]
-                    .as_str()
-                    .unwrap_or("Error: no summary generated")
-                    .to_string();
-
-                //Sync with data base
-                if let Ok(service) = MemoryService::new(&database) {
-                    match service.finalization_dream(&summary) {
-                        Ok(msg) => println!("[SYSTEM] {}", msg),
-                        Err(e) => eprintln!("[DREAM ERROR] {}", e),
+            match OllamaService::chat(&messages, &serde_json::json!([])).await {
+                Ok(response) => {
+                    /*
+                    FIX : we require real non-empty text content
+                    before writing anything
+                     */
+                    match response["message"]["content"].as_str() {
+                        Some(summary) if !summary.trim().is_empty() => {
+                            if let Ok(service) = MemoryService::new(&database) {
+                                match service.finalization_dream(summary) {
+                                    Ok(msg) => println!("[SYSTEM] {}", msg),
+                                    Err(e) => eprintln!("[DREAM ERROR] {}", e),
+                                }
+                            }
+                        }
+                        _ => {
+                            eprintln!(
+                                "[DREAM ERROR] Réponse Ollama sans contenu exploitable, \
+                                memory.md conservé tel quel. Events non consolidés, \
+                                ils seront repris au prochain dream."
+                            );
+                        }
                     }
                 }
+                Err(e) => {
+                    eprintln!("[DREAM ERROR] Échec de l'appel Ollama : {}. memory.md \
+                    conservé tel quel. Events non consolidés.", e);
+                }
             }
-        } else {
+        }
+        else {
             println!("[SYSTEM] No events to consolidate.");
         }
     }

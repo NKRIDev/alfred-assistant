@@ -219,7 +219,7 @@ impl MemoryService {
         if let Err(e) = fs::write("memory/memory.md", summary) {
             return Err(format!("Error writing memory.md: {}", e));
         }
-
+        
         /*
         Delete all events
          */

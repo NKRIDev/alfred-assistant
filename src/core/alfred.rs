@@ -49,4 +49,20 @@ impl Alfred {
             database_url: database.clone(),
         }
     }
+
+    /*
+    So that the assistant is not a huge context, we keep the
+    system context + the last 'max_messages' messages
+     */
+    pub fn trim_history(&mut self, max_messages: usize) {
+        if self.history.len() <= max_messages + 1 {
+            return;
+        }
+
+        let system = self.history[0].clone();
+        let tail_start = self.history.len() - max_messages;
+        let mut trimmed = vec![system];
+        trimmed.extend_from_slice(&self.history[tail_start..]);
+        self.history = trimmed;
+    }
 }

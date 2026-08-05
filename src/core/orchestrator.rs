@@ -73,6 +73,12 @@ impl Orchestrator {
                 _ => {
                     let reply = message["content"].as_str().unwrap_or("Pas de réponse.");
                     alfred.memory.log_event("assistant", &reply, None).ok();
+
+                    /*
+                    Apply context opti.
+                     */
+                    alfred.trim_history(20);
+
                     return reply.to_string();
                 }
             }
