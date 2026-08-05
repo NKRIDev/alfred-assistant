@@ -5,12 +5,13 @@ use std::collections::HashMap;
 use crate::commands::command::CommandHandler;
 use std::process;
 use serde_json::{json, Value};
+use crate::core::dream::DreamTimer;
 
 pub struct QuitCommand;
 
 impl CommandHandler for QuitCommand {
     fn execute(&self, _: &HashMap<String, String>) -> String{
-        process::exit(0);
+        String::from("Shutdown in progress...")
     }
 
     fn description(&self) -> Value {

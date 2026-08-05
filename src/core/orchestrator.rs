@@ -5,13 +5,14 @@ the LLM used
 use std::collections::HashMap;
 use serde_json::{json, Value};
 use crate::core::alfred::Alfred;
+use crate::core::dream::DreamTimer;
 use crate::services::ollama::OllamaService;
 
 pub struct Orchestrator;
 
 impl Orchestrator {
 
-    pub fn ask_alfred(user_input: &str, alfred: &mut Alfred) -> String {
+    pub async fn ask_alfred(user_input: &str, alfred: &mut Alfred) -> String {
         /*
         Build conversation
          */
@@ -32,7 +33,13 @@ impl Orchestrator {
             /*
             Call ollama service
             */
-            let response = OllamaService::chat(&Value::Array(alfred.history.clone()), &tools);
+            let response = match OllamaService::chat(&Value::Array(alfred.history.clone()), &tools).await {
+                Ok(res) => res,
+                Err(err) => {
+                    eprintln!("[ERROR] Ollama request failed: {}", err);
+                    return format!("An error occurred with the connection to the LLM : {}", err);
+                }
+            };
 
             /*
             Save assistant response in the context and databse

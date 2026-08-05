@@ -106,24 +106,38 @@ impl MemoryService {
     }
 
     /*
+    Get the number of events in db
+     */
+    pub fn count_events(&self) -> Result<usize, String> {
+        let query = "SELECT COUNT(*) FROM events";
+        self.connection.query_row(query, [], |row| {
+                let count: i64 = row.get(0)?;
+                Ok(count as usize)
+            }).map_err(|e| e.to_string())
+    }
+
+    /*
     Returns all events and creates a "memory.md" readme
     file that stores the data.
 
     TODO : In the future, why not create target Markdown files
      for specific domains (user, project, preferences, etc.) that are
      loaded at the right time?
+
+     FIX : async execution of the Dream to avoid blocking
+     the assistant's response
      */
-    pub fn dream(&self) -> String {
+    pub fn prepared_dream_prompt(&self) -> Result<Option<String>, String> {
         let events = match self.get_events() {
             Ok(events) => events,
-            Err(error) => return error.to_string(),
+            Err(error) => return Ok(None),
         };
 
         /*
         Check if events is empty
          */
         if events.is_empty() {
-            return String::from("No events found");
+            return Ok(None);
         }
 
         /*
@@ -194,32 +208,24 @@ impl MemoryService {
             existing_memory, logs
         );
 
-        /*
-        Message and call ollama API
-         */
-        let messages = serde_json::json!([
-            {"role": "user", "content": prompt},
-        ]);
+        Ok(Some(prompt))
+    }
 
-        let response = OllamaService::chat(&messages, &serde_json::json!([]));
-        let summary = response["message"]["content"]
-            .as_str()
-            .unwrap_or("Error: no summary generated")
-            .to_string();
 
+    pub fn finalization_dream(&self, summary: &str, events_count: usize) -> Result<String, String> {
         /*
         Write file on memory folder
          */
-        if let Err(e) = fs::write("memory/memory.md", &summary) {
-            return format!("Error writing memory.md : {}", e);
+        if let Err(e) = fs::write("memory/memory.md", summary) {
+            return Err(format!("Error writing memory.md: {}", e));
         }
 
         /*
         Delete all events
          */
-        self.clear_events().ok();
+        self.clear_events().map_err(|e| e.to_string())?;
 
-        format!("memory.md successfully generated ({} events processed", events.len())
+        Ok(format!("memory.md successfully generated ({} events processed)", events_count))
     }
 
     /*

@@ -7,7 +7,8 @@ use crate::commands::registry::init_commands;
 use crate::core::alfred::Alfred;
 use crate::services::application::ApplicationService;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     //Init .env
     dotenv().ok();
 
@@ -22,5 +23,5 @@ fn main() {
                              "datas/events.db".to_string(), registry);
 
     //Start alfred loop
-    cli::start_alfred(alfred);
+    cli::start_alfred(alfred).await;
 }

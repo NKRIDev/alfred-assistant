@@ -12,7 +12,8 @@ pub struct Alfred {
     pub system_prompt: String,
     pub registry: CommandRegistry,
     pub history: Vec<Value>,
-    pub memory: MemoryService
+    pub memory: MemoryService,
+    pub database_url: String,
 }
 
 impl Alfred {
@@ -26,11 +27,6 @@ impl Alfred {
         let memory = MemoryService::new(&database).expect("Error opening memory database.");
 
         /*
-        Starting the timer for the dream run.
-         */
-        DreamTimer::start(database, 120);
-
-        /*
         Create Alfred prompt
          */
         let prompt = format!("{}\n\n{}", system_prompt, MemoryService::load_term_memory());
@@ -42,25 +38,15 @@ impl Alfred {
             "role": "system",
             "content": prompt,
         });
-        let mut history = vec![system_conv];
-
-        /*
-        Retrieve past conversations stored in the
-        database to provide them as context to the LLM
-         */
-        if let Ok(events) = memory.get_role_content(){
-
-            for event in &events {
-                history.push(json!({ "role": event.0, "content": event.1 }));
-            }
-        }
+        let history = vec![system_conv];
 
         Self{
             model,
             system_prompt,
             registry,
             history,
-            memory
+            memory,
+            database_url: database.clone(),
         }
     }
 }

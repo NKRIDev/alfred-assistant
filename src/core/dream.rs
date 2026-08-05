@@ -1,36 +1,54 @@
-use std::thread;
-use std::time::Duration;
 use crate::services::memory::MemoryService;
+use crate::services::ollama::OllamaService;
 
 /*
 Task that updates the assistant's memory
-and restarts it.
  */
 pub struct DreamTimer;
 
 impl DreamTimer {
 
     /*
-    Start timer with database path url and
-    timer in secs.
+    Triggers a single dream consolidation task asynchronously without blocking
      */
-    pub fn start(database: String, timer: u64){
-        thread::spawn(move || {
+    pub async fn trigger(database: String) {
+        println!("[SYSTEM] Cleaning and saving memory...");
+        tokio::spawn(async move {
+            /*
+            Generate prompt
+             */
+            let prompt_dream = {
+                let service = MemoryService::new(&database).ok();
+                service.and_then(|s| s.prepared_dream_prompt().ok().flatten())
+            };
 
-            loop {
-                thread::sleep(Duration::from_secs(timer));
+            /*
+            Call ollama with async network
+             */
+            if let Some(prompt) = prompt_dream {
+                println!("[SYSTEM] Auto Dream process started.");
 
-                match MemoryService::new(&database) {
-                    Ok(service) => {
-                        println!("[SYSTEM] Auto Dream process started.");
-                        println!("{}", service.dream());
-                        println!("[SYSTEM] Auto Dream cycle finished successfully.");
-                    },
-                    Err(e) => {
-                        eprintln!("Error opening memory database: {}", e);
-                        continue;
+                //Message and call ollama API
+                let messages = serde_json::json!([
+                    {"role": "user", "content": prompt},
+                ]);
+
+                if let Ok(response) = OllamaService::chat(&messages, &serde_json::json!([])).await {
+                    let summary = response["message"]["content"]
+                        .as_str()
+                        .unwrap_or("Error: no summary generated")
+                        .to_string();
+
+                    //Sync with data base
+                    if let Ok(service) = MemoryService::new(&database) {
+                        match service.finalization_dream(&summary, 0) {
+                            Ok(msg) => println!("[SYSTEM] {}", msg),
+                            Err(e) => eprintln!("[DREAM ERROR] {}", e),
+                        }
                     }
                 }
+            } else {
+                println!("[SYSTEM] No events to consolidate.");
             }
         });
     }
