@@ -9,7 +9,7 @@ impl OllamaService {
     /*
     Call ollama serve
      */
-    pub fn chat(messages: &Value, tools: &Value) -> Value {
+    pub async fn chat(messages: &Value, tools: &Value) -> Result<Value, String> {
         /*
         Create body request
          */
@@ -26,25 +26,28 @@ impl OllamaService {
          */
         let ollama_api = match env::var("OLLAMA_API") {
             Ok(val) => val,
-            Err(_) => return json!({"error": "ollama api url is missing in env file."}),
+            Err(_) => return Err("OLLAMA_API URL is missing in env file.".to_string()),
         };
 
         /*
         Add time out on llm
          */
-        let client = reqwest::blocking::Client::builder()
-            .timeout(Duration::from_secs(120))//2 min timeout
+        let client = reqwest::Client::builder()
+            .timeout(Duration::from_secs(300))//5 min timeout
             .build()
             .expect("Unable to build the HTTP client");
 
         /*
         Send request to ollama
          */
-        client.post(format!("{}/api/chat", ollama_api))
+        let response = client
+            .post(format!("{}/api/chat", ollama_api))
             .json(&body)
             .send()
-            .expect("Ollama request error")
-            .json::<Value>()
-            .expect("Ollama error during json parsing")
+            .await
+            .map_err(|e| format!("Ollama request error: {}", e))?;
+
+        response.json::<Value>().await
+            .map_err(|e| format!("Ollama error during JSON parsing: {}", e))
     }
 }

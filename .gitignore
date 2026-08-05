@@ -1,3 +1,7 @@
+# Alfred ignore
+datas/
+memory/
+
 # Build artifacts
 target/
 
