@@ -6,7 +6,7 @@ Alfred combines a local LLM (Ollama), local speech-to-text (OpenAI's Whisper), t
 
 ## Why this project?
 
-This project grew out of a personal challenge: to build my own AI assistant while knowing exactly where my data is hosted and how it is used. Running the LLM, speech recognition, and text-to-speech locally directly addresses this goal—eliminating reliance on third-party services for core processing.
+This project grew out of a personal challenge: to build my own AI assistant while knowing exactly where my data is hosted and how it is used. Running the LLM, speech recognition, and text-to-speech locally directly addresses this goal eliminating reliance on third-party services for core processing.
 
 This project was developed in my spare time, primarily for my own use. It is neither designed nor maintained with the aim of broad community distribution; the code, technical choices, and documentation reflect my specific needs and constraints rather than a goal of general-purpose utility. The project will evolve over time based on my availability and interests, without a fixed roadmap or guarantees of stability. 
 
