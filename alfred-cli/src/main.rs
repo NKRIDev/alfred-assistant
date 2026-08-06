@@ -1,13 +1,11 @@
-pub mod cli;
-pub mod commands;
-mod services;
-mod core;
 use dotenvy::dotenv;
-use crate::commands::registry::init_commands;
-use crate::core::alfred::Alfred;
-use crate::services::application::ApplicationService;
-use crate::services::micro::MicroService;
-use crate::services::stt::SttService;
+use alfred_core::commands::registry::init_commands;
+use alfred_core::core::alfred::Alfred;
+use alfred_core::services::application::ApplicationService;
+use alfred_core::services::micro::MicroService;
+use alfred_core::services::stt::SttService;
+
+mod cli;
 
 fn test_transcription() {
     let stt = SttService::new("stt-models/ggml-small.bin").expect("Model not found");

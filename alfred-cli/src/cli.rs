@@ -1,10 +1,10 @@
 use tokio::io::{self, AsyncBufReadExt, BufReader};
-use crate::core::alfred::Alfred;
-use crate::core::dream::DreamTimer;
-use crate::core::orchestrator::Orchestrator;
-use crate::services::micro::MicroService;
-use crate::services::stt::SttService;
-use crate::services::tts::TtsService;
+use alfred_core::core::alfred::Alfred;
+use alfred_core::core::dream::DreamTimer;
+use alfred_core::core::orchestrator::Orchestrator;
+use alfred_core::services::micro::MicroService;
+use alfred_core::services::stt::SttService;
+use alfred_core::services::tts::TtsService;
 
 /*
 Returns the value the user enters in the console
