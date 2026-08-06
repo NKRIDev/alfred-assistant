@@ -12,13 +12,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "alfred-assistant"
+name = "alfred-cli"
+version = "0.1.0"
+dependencies = [
+ "alfred-core",
+ "dotenvy",
+ "tokio",
+]
+
+[[package]]
+name = "alfred-core"
 version = "0.1.0"
 dependencies = [
  "chrono",
  "chrono-tz",
  "cpal 0.18.1",
- "dotenvy",
  "hound",
  "reqwest",
  "rodio",
