@@ -19,7 +19,6 @@ impl MicroService {
         let sample_rate = config.sample_rate();
         let channels = config.channels() as usize;
 
-        println!("Micro détecté, sample rate: {}, channels: {}", sample_rate, channels);
         print!("[MICRO] Appuyez sur Entrée pour COMMENCER l'enregistrement...");
         io::stdout().flush().ok();
 

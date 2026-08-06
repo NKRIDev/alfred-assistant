@@ -26,13 +26,6 @@ fn listen_micro(){
 
 #[tokio::main]
 async fn main() {
-    /*
-    Testing audio transcription using the Whisper model
-    (I made sure to read and transcribe a .wav file to start with)
-     */
-    //test_transcription();
-    listen_micro();
-
     //Init .env
     dotenv().ok();
 
@@ -42,10 +35,13 @@ async fn main() {
     //init register command
     let registry = init_commands(app_service);
 
+    //STT service
+    let stt_service = SttService::new("stt-models/ggml-small.bin").expect("Model not found");
+
     //init alfred core
     let alfred = Alfred::new("qwen3:4b-instruct".to_string(), "skills/alfred.md".to_string(),
                              "datas/events.db".to_string(), registry);
 
     //Start alfred loop
-    cli::start_alfred(alfred).await;
+    cli::start_alfred(alfred, stt_service).await;
 }
