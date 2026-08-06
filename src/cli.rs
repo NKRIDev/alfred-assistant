@@ -4,6 +4,7 @@ use crate::core::dream::DreamTimer;
 use crate::core::orchestrator::Orchestrator;
 use crate::services::micro::MicroService;
 use crate::services::stt::SttService;
+
 /*
 Returns the value the user enters in the console
  */
@@ -42,8 +43,8 @@ pub async fn start_alfred(mut alfred: Alfred, stt: SttService) {
     /*
     Tokio lib
      */
-    let stdin = io::stdin();
-    let mut reader = BufReader::new(stdin);
+    //let stdin = io::stdin();
+    //let mut reader = BufReader::new(stdin);
 
     /*
     Alfred loop

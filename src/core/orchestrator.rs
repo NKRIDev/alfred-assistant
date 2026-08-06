@@ -5,7 +5,6 @@ the LLM used
 use std::collections::HashMap;
 use serde_json::{json, Value};
 use crate::core::alfred::Alfred;
-use crate::core::dream::DreamTimer;
 use crate::services::ollama::OllamaService;
 
 pub struct Orchestrator;
