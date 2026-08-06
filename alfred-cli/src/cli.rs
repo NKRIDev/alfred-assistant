@@ -49,7 +49,7 @@ pub async fn start_alfred(mut alfred: Alfred, stt: SttService) {
     /*
     Create text to speach service
      */
-    //let tts = TtsService::new();
+    let tts = TtsService::new();
 
     /*
     Alfred loop
@@ -70,11 +70,9 @@ pub async fn start_alfred(mut alfred: Alfred, stt: SttService) {
         /*
         Make Alfred speak
          */
-        /*
         if let Err(e) = tts.speak(&reply).await {
             eprintln!("TTS: {e}");
         }
-         */
 
         //Check if input is "quit", break loop
         if input == "quit" {
