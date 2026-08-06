@@ -2,7 +2,6 @@ use tokio::io::{self, AsyncBufReadExt, BufReader};
 use crate::core::alfred::Alfred;
 use crate::core::dream::DreamTimer;
 use crate::core::orchestrator::Orchestrator;
-
 /*
 Returns the value the user enters in the console
  */
