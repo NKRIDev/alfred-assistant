@@ -42,10 +42,9 @@ pub async fn start_alfred(mut alfred: Alfred, stt: SttService) {
     println!("Welcome to Alfred Assistant");
 
     /*
-    Tokio lib
-     */
     let stdin = io::stdin();
     let mut reader = BufReader::new(stdin);
+     */
 
     /*
     Create text to speach service
@@ -59,13 +58,11 @@ pub async fn start_alfred(mut alfred: Alfred, stt: SttService) {
         println!("> ");
 
         //Disable to test the microphone with the assistant
-        let input = input_command(&mut reader).await;
-        /*
+        //let input = input_command(&mut reader).await;
         let input = match record_micro(&stt).await{
             Some(text) => text,
             None => continue,
         };
-         */
 
         let reply = Orchestrator::ask_alfred(&input, &mut alfred).await;
         println!("{}", reply);
