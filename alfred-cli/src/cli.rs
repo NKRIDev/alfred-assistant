@@ -44,13 +44,13 @@ pub async fn start_alfred(mut alfred: Alfred, stt: SttService) {
     /*
     Tokio lib
      */
-    //let stdin = io::stdin();
-    //let mut reader = BufReader::new(stdin);
+    let stdin = io::stdin();
+    let mut reader = BufReader::new(stdin);
 
     /*
     Create text to speach service
      */
-    let tts = TtsService::new();
+    //let tts = TtsService::new();
 
     /*
     Alfred loop
@@ -59,11 +59,13 @@ pub async fn start_alfred(mut alfred: Alfred, stt: SttService) {
         println!("> ");
 
         //Disable to test the microphone with the assistant
-        //let input = input_command(&mut reader).await;
+        let input = input_command(&mut reader).await;
+        /*
         let input = match record_micro(&stt).await{
             Some(text) => text,
             None => continue,
         };
+         */
 
         let reply = Orchestrator::ask_alfred(&input, &mut alfred).await;
         println!("{}", reply);
@@ -71,9 +73,11 @@ pub async fn start_alfred(mut alfred: Alfred, stt: SttService) {
         /*
         Make Alfred speak
          */
+        /*
         if let Err(e) = tts.speak(&reply).await {
             eprintln!("TTS: {e}");
         }
+         */
 
         //Check if input is "quit", break loop
         if input == "quit" {
