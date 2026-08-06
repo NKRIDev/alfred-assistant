@@ -4,6 +4,7 @@ use crate::core::dream::DreamTimer;
 use crate::core::orchestrator::Orchestrator;
 use crate::services::micro::MicroService;
 use crate::services::stt::SttService;
+use crate::services::tts::TtsService;
 
 /*
 Returns the value the user enters in the console
@@ -47,6 +48,11 @@ pub async fn start_alfred(mut alfred: Alfred, stt: SttService) {
     //let mut reader = BufReader::new(stdin);
 
     /*
+    Create text to speach service
+     */
+    let tts = TtsService::new();
+
+    /*
     Alfred loop
      */
     loop {
@@ -61,6 +67,13 @@ pub async fn start_alfred(mut alfred: Alfred, stt: SttService) {
 
         let reply = Orchestrator::ask_alfred(&input, &mut alfred).await;
         println!("{}", reply);
+
+        /*
+        Make Alfred speak
+         */
+        if let Err(e) = tts.speak(&reply).await {
+            eprintln!("TTS: {e}");
+        }
 
         //Check if input is "quit", break loop
         if input == "quit" {
