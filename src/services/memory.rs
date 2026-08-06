@@ -1,6 +1,5 @@
 use chrono::Utc;
 use rusqlite::{params, Connection, Result};
-use crate::services::ollama::OllamaService;
 use std::fs;
 
 /*

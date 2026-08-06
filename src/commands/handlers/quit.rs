@@ -3,9 +3,7 @@ Quit application
  */
 use std::collections::HashMap;
 use crate::commands::command::CommandHandler;
-use std::process;
 use serde_json::{json, Value};
-use crate::core::dream::DreamTimer;
 
 pub struct QuitCommand;
 

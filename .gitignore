@@ -1,6 +1,8 @@
 # Alfred ignore
 datas/
 memory/
+stt-models/
+test_audio.wav
 
 # Build artifacts
 target/
