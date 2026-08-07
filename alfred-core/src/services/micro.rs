@@ -1,6 +1,14 @@
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use std::sync::{Arc, Mutex};
 use std::io::{self, Write};
+use symphonia::core::codecs::CODEC_TYPE_OPUS;
+use symphonia::core::formats::FormatOptions;
+use symphonia::core::io::MediaSourceStream;
+use symphonia::core::meta::MetadataOptions;
+use symphonia::core::probe::Hint;
+use std::io::Cursor;
+use audiopus::coder::Decoder as OpusDecoder;
+use audiopus::{Channels, SampleRate};
 
 /*
 Manages the micro part
@@ -82,5 +90,82 @@ impl MicroService {
         }
 
         output
+    }
+
+    /*
+    Webm to PCM
+     */
+    pub fn decode_webm_to_pcm(bytes: &[u8]) -> Result<(Vec<f32>, u32), String> {
+        let cursor = Cursor::new(bytes.to_vec());
+        let mss = MediaSourceStream::new(Box::new(cursor), Default::default());
+
+        let mut hint = Hint::new();
+        hint.with_extension("webm");
+
+        let probed = symphonia::default::get_probe()
+            .format(&hint, mss, &FormatOptions::default(), &MetadataOptions::default())
+            .map_err(|e| format!("Audio probe error : {}", e))?;
+
+        let mut format = probed.format;
+
+        let track = format
+            .tracks()
+            .iter()
+            .find(|t| t.codec_params.codec == CODEC_TYPE_OPUS)
+            .ok_or("No Opus track found in the WebM stream.")?;
+
+        let track_id = track.id;
+        let channels_count = track
+            .codec_params
+            .channels
+            .map(|c| c.count())
+            .unwrap_or(1);
+
+        let channels = if channels_count == 1 {
+            Channels::Mono
+        } else {
+            Channels::Stereo
+        };
+
+        let mut opus_decoder = OpusDecoder::new(SampleRate::Hz48000, channels)
+            .map_err(|e| format!("Opus decoder initialization error : {:?}", e))?;
+
+        let mut pcm_samples: Vec<f32> = Vec::new();
+        let mut out_buf = vec![0f32; 5760 * channels_count];
+
+        loop {
+            let packet = match format.next_packet() {
+                Ok(p) => p,
+                Err(_) => break,
+            };
+
+            if packet.track_id() != track_id {
+                continue;
+            }
+
+            /*
+            We pass &packet.data (which is of type &[u8]) directly into Some()
+             */
+            let decoded_len = match opus_decoder.decode_float(
+                Some(&packet.data[..]),
+                &mut out_buf[..],
+                false
+            ) {
+                Ok(len) => len,
+                Err(_) => continue,
+            };
+
+            if channels_count == 1 {
+                pcm_samples.extend_from_slice(&out_buf[..decoded_len]);
+            }
+            else {
+                for frame in out_buf[..decoded_len * channels_count].chunks(channels_count) {
+                    let mono: f32 = frame.iter().sum::<f32>() / channels_count as f32;
+                    pcm_samples.push(mono);
+                }
+            }
+        }
+
+        Ok((pcm_samples, 48000))
     }
 }

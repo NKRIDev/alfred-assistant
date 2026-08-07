@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use whisper_rs::{WhisperContext, WhisperContextParameters, FullParams, SamplingStrategy};
 
 /*
@@ -6,8 +7,9 @@ in string format
 I use Whisper by OpenIA,
 github : https://github.com/openai/whisper
  */
+#[derive(Clone)]
 pub struct SttService {
-    ctx: WhisperContext,
+    ctx: Arc<WhisperContext>,
 }
 
 impl SttService {
@@ -21,7 +23,7 @@ impl SttService {
             WhisperContextParameters::default(),
         ).map_err(|e| format!("Whisper init error: {:?}", e))?;
 
-        Ok(Self { ctx })
+        Ok(Self { ctx: Arc::new(ctx) })
     }
 
     /*

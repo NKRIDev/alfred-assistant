@@ -6,12 +6,13 @@ use axum::{Router, routing::post};
 use alfred_core::core::alfred::Alfred;
 use alfred_core::commands::registry::init_commands;
 use alfred_core::services::application::ApplicationService;
-use crate::controllers::ask_controller::ask_handle;
+use crate::controllers::ask_controller::{ask_handle, ask_micro_handle};
 use crate::services::ask_service::AskService;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use dotenvy::dotenv;
 use tower_http::cors::{Any, CorsLayer};
+use alfred_core::services::stt::SttService;
 use alfred_core::services::tts::TtsService;
 
 #[tokio::main]
@@ -32,8 +33,11 @@ async fn main() {
     //init tts service
     let tts = TtsService::new();
 
+    //STT service
+    let stt = SttService::new("stt-models/ggml-small.bin").expect("Model not found");
+
     let shared_alfred = Arc::new(Mutex::new(alfred));
-    let ask_service = AskService::new(shared_alfred, tts);
+    let ask_service = AskService::new(shared_alfred, tts, stt);
 
     /*
     CROS
@@ -48,6 +52,7 @@ async fn main() {
     */
     let app = Router::new()
         .route("/ask", post(ask_handle))
+        .route("/ask-audio", post(ask_micro_handle))
         .layer(cors)
         .with_state(ask_service);
 
