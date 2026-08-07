@@ -13,6 +13,7 @@ struct TtsRequest {
     language: String,
 }
 
+#[derive(Clone)]
 pub struct TtsService {
     client: Client,
     url: String,
@@ -83,5 +84,23 @@ impl TtsService {
             Ok(Err(err_msg)) => Err(err_msg.into()),
             Err(join_err) => Err(Box::new(join_err)),
         }
+    }
+
+    /*
+    Generates the sound and returns the bytes
+     */
+    pub async fn generate_audio(&self, text: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+        let payload = TtsRequest {
+            text: text.to_string(),
+            language: "fr".to_string(),
+        };
+
+        let response = self.client
+            .post(&self.url)
+            .json(&payload)
+            .send().await?;
+
+        let audio_bytes = response.bytes().await?;
+        Ok(audio_bytes.to_vec())
     }
 }

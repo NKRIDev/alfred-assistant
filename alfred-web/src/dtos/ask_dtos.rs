@@ -11,4 +11,5 @@ pub struct AlfredAskRequest {
 #[derive(Serialize)]
 pub struct AlfredAskResponse {
     pub result: String,
+    pub audio: String,
 }

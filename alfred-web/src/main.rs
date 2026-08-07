@@ -11,6 +11,8 @@ use crate::services::ask_service::AskService;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use dotenvy::dotenv;
+use tower_http::cors::{Any, CorsLayer};
+use alfred_core::services::tts::TtsService;
 
 #[tokio::main]
 async fn main() {
@@ -27,14 +29,26 @@ async fn main() {
     let alfred = Alfred::new("qwen3:4b-instruct".to_string(), "skills/alfred.md".to_string(),
                              "datas/events.db".to_string(), registry);
 
+    //init tts service
+    let tts = TtsService::new();
+
     let shared_alfred = Arc::new(Mutex::new(alfred));
-    let ask_service = AskService::new(shared_alfred);
+    let ask_service = AskService::new(shared_alfred, tts);
+
+    /*
+    CROS
+    */
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
 
     /*
     Init routes API
     */
     let app = Router::new()
         .route("/ask", post(ask_handle))
+        .layer(cors)
         .with_state(ask_service);
 
     /*

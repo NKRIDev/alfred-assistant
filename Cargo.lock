@@ -44,6 +44,7 @@ version = "0.1.0"
 dependencies = [
  "alfred-core",
  "axum",
+ "base64",
  "dotenvy",
  "serde",
  "serde_json",
