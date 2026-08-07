@@ -4,7 +4,7 @@ Command interface
 use std::collections::HashMap;
 use serde_json::{Value};
 
-pub trait CommandHandler {
+pub trait CommandHandler : Send + Sync {
     fn execute(&self, args: &HashMap<String, String>) -> String;
 
     /*
