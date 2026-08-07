@@ -12,7 +12,7 @@ use crate::commands::handlers::weather::WeatherCommand;
 use crate::services::application::ApplicationService;
 
 pub struct CommandRegistry {
-    commands: HashMap<String, Box<dyn CommandHandler>>,
+    commands: HashMap<String, Box<dyn CommandHandler + Sync + Send>>,
 }
 
 impl CommandRegistry {
