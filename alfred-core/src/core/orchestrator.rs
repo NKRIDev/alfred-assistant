@@ -86,18 +86,14 @@ impl Orchestrator {
     }
 
     pub async fn ask_alfred_mistral(user_input: &str, alfred: &mut Alfred) -> String {
-        // 1. Récupération des outils enregistrés dans Alfred
         let tools = alfred.registry.build_tools();
 
-        // 2. Formatage du message utilisateur
         let user_content = json!({ "role": "user", "content": user_input });
 
-        // 3. Sauvegarde dans l'historique local et en mémoire
         alfred.history.push(user_content);
         alfred.memory.log_event("user", user_input, None).ok();
 
         loop {
-            // 4. Appel au service Mistral
             let response = match MistralService::chat(&Value::Array(alfred.history.clone()), &tools).await {
                 Ok(res) => res,
                 Err(err) => {
@@ -106,18 +102,15 @@ impl Orchestrator {
                 }
             };
 
-            // 5. Extraction et sauvegarde de la réponse de l'assistant
             let message = response["message"].clone();
             alfred.history.push(message.clone());
 
-            // 6. Vérification si le modèle souhaite exécuter des outils
             match message["tool_calls"].as_array() {
                 Some(calls) if !calls.is_empty() => {
                     for call in calls {
                         let name = call["function"]["name"].as_str().unwrap_or("");
                         let tool_call_id = call["id"].as_str().unwrap_or("");
 
-                        // L'API Mistral renvoie les arguments sous forme de chaîne JSON (ex: "{\"city\": \"Paris\"}")
                         let args_raw = call["function"]["arguments"].as_str().unwrap_or("{}");
                         let args_json: Value = serde_json::from_str(args_raw).unwrap_or(json!({}));
 
@@ -136,10 +129,8 @@ impl Orchestrator {
                             })
                             .unwrap_or_default();
 
-                        // Exécution de l'outil via Alfred
                         let tool_result = alfred.registry.execute(name, &args);
 
-                        // Enregistrement du résultat au format attendu par Mistral (avec tool_call_id)
                         alfred.history.push(json!({
                             "role": "tool",
                             "name": name,
@@ -151,16 +142,26 @@ impl Orchestrator {
                     }
                 }
                 _ => {
-                    // Si aucun outil n'est appelé, on récupère le texte final
                     let reply = message["content"].as_str().unwrap_or("Pas de réponse.");
-                    alfred.memory.log_event("assistant", reply, None).ok();
+                    let reply_edit = strip_markdown(reply);
+                    alfred.memory.log_event("assistant", &reply_edit, None).ok();
 
-                    // Nettoyage de l'historique si nécessaire
                     alfred.trim_history(20);
 
-                    return reply.to_string();
+                    return reply_edit.to_string();
                 }
             }
         }
     }
+}
+
+pub fn strip_markdown(text: &str) -> String {
+    let mut result = text.to_string();
+    result = regex::Regex::new(r"\*\*(.+?)\*\*").unwrap().replace_all(&result, "$1").to_string();
+    result = regex::Regex::new(r"\*(.+?)\*").unwrap().replace_all(&result, "$1").to_string();
+    result = regex::Regex::new(r"(?m)^\d+\.\s+").unwrap().replace_all(&result, "").to_string();
+    result = regex::Regex::new(r"(?m)^[-*]\s+").unwrap().replace_all(&result, "").to_string();
+    result = regex::Regex::new(r"(?m)^#+\s+").unwrap().replace_all(&result, "").to_string();
+    result = regex::Regex::new(r"\[(.+?)\]\(.+?\)").unwrap().replace_all(&result, "$1").to_string();
+    result
 }

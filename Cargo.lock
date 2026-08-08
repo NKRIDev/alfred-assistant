@@ -30,6 +30,7 @@ dependencies = [
  "chrono-tz",
  "cpal 0.18.1",
  "hound",
+ "regex",
  "reqwest",
  "rodio",
  "rusqlite",

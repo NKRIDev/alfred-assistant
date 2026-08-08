@@ -8,3 +8,5 @@ pub mod micro;
 pub mod tts;
 pub mod mistral;
 pub mod gmail;
+pub mod calendar;
+pub mod google_auth;

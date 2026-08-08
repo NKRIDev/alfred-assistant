@@ -1,15 +1,13 @@
 use reqwest::Client;
 use serde_json::{json, Value};
 use base64::{engine::general_purpose, Engine};
-
+use crate::services::google_auth::GoogleAuthService;
 /*
 Service to communicate with the Google gmail service
  */
 #[derive(Clone)]
 pub struct GmailService {
-    client_id: String,
-    client_secret: String,
-    refresh_token: String,
+    auth: GoogleAuthService,
 }
 
 #[derive(serde::Serialize)]
@@ -22,33 +20,8 @@ pub struct EmailSummary {
 }
 
 impl GmailService {
-    pub fn new(client_id: String, client_secret: String, refresh_token: String) -> Self {
-        Self { client_id, client_secret, refresh_token }
-    }
-
-    /*
-    Recover access token
-     */
-    async fn get_access_token(&self) -> Result<String, String> {
-        let client = Client::new();
-        let res = client
-            .post("https://oauth2.googleapis.com/token")
-            .form(&[
-                ("client_id", self.client_id.as_str()),
-                ("client_secret", self.client_secret.as_str()),
-                ("refresh_token", self.refresh_token.as_str()),
-                ("grant_type", "refresh_token"),
-            ])
-            .send()
-            .await
-            .map_err(|e| format!("Gmail token error: {}", e))?;
-
-        let body: Value = res.json().await
-            .map_err(|e| format!("Gmail token parse error: {}", e))?;
-
-        body["access_token"].as_str()
-            .map(String::from)
-            .ok_or_else(|| "Pas d'access_token dans la réponse".to_string())
+    pub fn new(auth: GoogleAuthService) -> Self {
+        Self { auth }
     }
 
     /*
@@ -57,7 +30,7 @@ impl GmailService {
     then get the metadata (From, Subject) + snippet for each.
      */
     async fn search_messages(&self, query: &str, max_results: u32) -> Result<Vec<EmailSummary>, String> {
-        let access_token = self.get_access_token().await?;
+        let access_token = self.auth.get_access_token().await?;
         let client = Client::new();
 
         let list_res = client
@@ -136,7 +109,7 @@ impl GmailService {
      */
     pub async fn create_draft_reply(&self, message_id: &str, to: &str, subject: &str, body: &str)
         -> Result<String, String> {
-        let access_token = self.get_access_token().await?;
+        let access_token = self.auth.get_access_token().await?;
         let client = Client::new();
 
         let detail_res = client
@@ -190,7 +163,7 @@ impl GmailService {
     and archiving (removing the INBOX label).
      */
     pub async fn modify_labels(&self, message_id: &str, add: &[&str], remove: &[&str]) -> Result<String, String> {
-        let access_token = self.get_access_token().await?;
+        let access_token = self.auth.get_access_token().await?;
         let client = Client::new();
 
         let res = client
@@ -217,7 +190,7 @@ impl GmailService {
     Move to trash
      */
     pub async fn trash(&self, message_id: &str) -> Result<String, String> {
-        let access_token = self.get_access_token().await?;
+        let access_token = self.auth.get_access_token().await?;
         let client = Client::new();
 
         let res = client
