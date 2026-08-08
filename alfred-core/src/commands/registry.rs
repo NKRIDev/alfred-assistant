@@ -2,14 +2,20 @@
 Register assistant commands
  */
 use std::collections::HashMap;
+use std::env;
 use serde_json::Value;
 use crate::commands::command::CommandHandler;
+use crate::commands::handlers::gmail::draft_reply::DraftReplyCommand;
+use crate::commands::handlers::gmail::list_unread_emails::ListUnreadEmailsCommand;
+use crate::commands::handlers::gmail::manage_email::ManageEmailCommand;
+use crate::commands::handlers::gmail::search_emails::SearchEmailsCommand;
 use crate::commands::handlers::open::OpenCommand;
 use crate::commands::handlers::quit::QuitCommand;
 use crate::commands::handlers::search::SearchCommand;
 use crate::commands::handlers::time::TimeCommand;
 use crate::commands::handlers::weather::WeatherCommand;
 use crate::services::application::ApplicationService;
+use crate::services::gmail::GmailService;
 
 pub struct CommandRegistry {
     commands: HashMap<String, Box<dyn CommandHandler + Sync + Send>>,
@@ -65,6 +71,20 @@ pub fn init_commands(app_service : ApplicationService) -> CommandRegistry{
     command_registry.register(String::from("weather"), Box::new(WeatherCommand));
     command_registry.register(String::from("search"), Box::new(SearchCommand));
     command_registry.register(String::from("quit"), Box::new(QuitCommand));
+
+    /*
+    Init gmails features
+     */
+    let gmail = GmailService::new(
+        env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID manquant"),
+        env::var("GOOGLE_CLIENT_SECRET").expect("GOOGLE_CLIENT_SECRET manquant"),
+        env::var("GOOGLE_REFRESH_TOKEN").expect("GOOGLE_REFRESH_TOKEN manquant"),
+    );
+
+    command_registry.register(String::from("list_unread_emails"), Box::new(ListUnreadEmailsCommand::new(gmail.clone())));
+    command_registry.register(String::from("search_emails"), Box::new(SearchEmailsCommand::new(gmail.clone())));
+    command_registry.register(String::from("manage_email"), Box::new(ManageEmailCommand::new(gmail.clone())));
+    command_registry.register(String::from("draft_reply"), Box::new(DraftReplyCommand::new(gmail)));
 
     command_registry
 }

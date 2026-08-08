@@ -25,6 +25,7 @@ name = "alfred-core"
 version = "0.1.0"
 dependencies = [
  "audiopus",
+ "base64",
  "chrono",
  "chrono-tz",
  "cpal 0.18.1",
@@ -1721,6 +1722,7 @@ dependencies = [
  "rustls-platform-verifier",
  "serde",
  "serde_json",
+ "serde_urlencoded",
  "sync_wrapper",
  "tokio",
  "tokio-rustls",

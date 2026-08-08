@@ -7,3 +7,4 @@ pub mod stt;
 pub mod micro;
 pub mod tts;
 pub mod mistral;
+pub mod gmail;
