@@ -6,3 +6,4 @@ pub mod memory;
 pub mod stt;
 pub mod micro;
 pub mod tts;
+pub mod mistral;

@@ -30,7 +30,7 @@ impl AskService {
     pub async fn ask(&self, text: String) -> Result<AlfredAskResponse, String> {
         //Ask alfred and return response
         let mut alfred = self.alfred.lock().await;
-        let response = Orchestrator::ask_alfred(&text, &mut alfred).await;
+        let response = Orchestrator::ask_alfred_mistral(&text, &mut alfred).await;
 
         //Generate audio
         let audio_bytes = self.tts.generate_audio(&response).await
