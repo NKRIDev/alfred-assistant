@@ -25,7 +25,7 @@ The project is a [Cargo workspace](https://doc.rust-lang.org/book/ch14-03-cargo-
 
 - **`alfred-core`**: shared library: interaction orchestration, long-term memory, tool registry, speech transcription, microphone capture. Does not depend on any specific interface.
 - **`alfred-cli`**: command-line interface (text and/or voice).
-- **`alfred-web`** *(coming soon)* — HTTP/WebSocket API for a web interface.
+- **`alfred-web`**: HTTP/WebSocket API for a web interface.
 
 ## Prerequisites
 
