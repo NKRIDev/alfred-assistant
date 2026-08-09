@@ -28,21 +28,23 @@ impl CommandHandler for OpenCommand {
 
     fn description(&self) -> Value {
         json!({
-            "type": "function",
-            "function": {
-                "name": "open",
-                "description": "Open an application on the computer.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "app_name": {
-                            "type": "string",
-                            "description": "Name of the application to open"
-                        }
-                    },
-                    "required": ["app_name"]
-                }
+        "type": "function",
+        "function": {
+            "name": "open",
+            "description": "Open an application on the computer with no specific content .\
+            (e.g. open a text editor, open a browser). Do NOT use this to play music or a specific \
+            song — use manage_music for that instead.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "app_name": {
+                        "type": "string",
+                        "description": "Name of the application to open"
+                    }
+                },
+                "required": ["app_name"]
             }
-        })
+        }
+    })
     }
 }

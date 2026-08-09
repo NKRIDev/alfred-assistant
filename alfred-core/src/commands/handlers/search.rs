@@ -20,18 +20,20 @@ impl CommandHandler for SearchCommand {
 
     fn description(&self) -> Value {
         json!({
-            "type": "function",
-            "function": {
-                "name": "search",
-                "description": "Search the web for current or recent information.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "query": { "type": "string", "description": "The search query" }
-                    },
-                    "required": ["query"]
-                }
+        "type": "function",
+        "function": {
+            "name": "search",
+            "description": "Search the web for current or recent factual information (news, facts, prices, general knowledge). \
+            Do NOT use this to play a song or artist — use manage_music for that instead, even if the request looks like \
+            'find me a song' or names a track/artist.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": { "type": "string", "description": "The search query" }
+                },
+                "required": ["query"]
             }
-        })
+        }
+    })
     }
 }
