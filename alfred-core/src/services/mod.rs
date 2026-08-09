@@ -10,3 +10,4 @@ pub mod mistral;
 pub mod gmail;
 pub mod calendar;
 pub mod google_auth;
+pub mod spotify;

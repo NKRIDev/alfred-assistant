@@ -16,12 +16,14 @@ use crate::commands::handlers::gmail::search_emails::SearchEmailsCommand;
 use crate::commands::handlers::open::OpenCommand;
 use crate::commands::handlers::quit::QuitCommand;
 use crate::commands::handlers::search::SearchCommand;
+use crate::commands::handlers::spotify::manage_music::ManageMusicCommand;
 use crate::commands::handlers::time::TimeCommand;
 use crate::commands::handlers::weather::WeatherCommand;
 use crate::services::application::ApplicationService;
 use crate::services::calendar::CalendarService;
 use crate::services::gmail::GmailService;
 use crate::services::google_auth::GoogleAuthService;
+use crate::services::spotify::SpotifyService;
 
 pub struct CommandRegistry {
     commands: HashMap<String, Box<dyn CommandHandler + Sync + Send>>,
@@ -82,9 +84,9 @@ pub fn init_commands(app_service : ApplicationService) -> CommandRegistry{
     Init googles features
      */
     let google_auth = GoogleAuthService::new(
-        env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID manquant"),
-        env::var("GOOGLE_CLIENT_SECRET").expect("GOOGLE_CLIENT_SECRET manquant"),
-        env::var("GOOGLE_REFRESH_TOKEN").expect("GOOGLE_REFRESH_TOKEN manquant"),
+        env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID is missing"),
+        env::var("GOOGLE_CLIENT_SECRET").expect("GOOGLE_CLIENT_SECRET is missing"),
+        env::var("GOOGLE_REFRESH_TOKEN").expect("GOOGLE_REFRESH_TOKEN is missing"),
     );
 
     let gmail = GmailService::new(google_auth.clone());
@@ -98,6 +100,16 @@ pub fn init_commands(app_service : ApplicationService) -> CommandRegistry{
     command_registry.register(String::from("create_event"), Box::new(CreateEventCommand::new(calendar.clone())));
     command_registry.register(String::from("update_event"), Box::new(UpdateEventCommand::new(calendar.clone())));
     command_registry.register(String::from("delete_event"), Box::new(DeleteEventCommand::new(calendar)));
+
+    /*
+    Init spotify features
+     */
+    let spotify = SpotifyService::new(
+        env::var("SPOTIFY_CLIENT_ID").expect("SPOTIFY_CLIENT_ID is missing"),
+        env::var("SPOTIFY_CLIENT_SECRET").expect("SPOTIFY_CLIENT_SECRET is missing"),
+        env::var("SPOTIFY_REFRESH_TOKEN").expect("SPOTIFY_REFRESH_TOKEN is missing"),
+    );
+    command_registry.register(String::from("manage_music"), Box::new(ManageMusicCommand::new(spotify)));
 
     command_registry
 }
