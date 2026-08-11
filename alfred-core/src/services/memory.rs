@@ -1,13 +1,15 @@
 use chrono::Utc;
 use rusqlite::{params, Connection, Result};
 use std::fs;
+use std::sync::{Arc, Mutex};
 
 /*
 Connection link between the SQLite
 database and the program
  */
-pub struct MemoryService{
-    connection: Connection,
+#[derive(Clone)]
+pub struct MemoryService {
+    connection: Arc<Mutex<Connection>>,
 }
 
 pub struct MemoryEvent {
@@ -54,7 +56,7 @@ impl MemoryService {
                 created_at TIMESTAMP NOT NULL)\
         ", [],)?;
 
-        Ok(Self {connection})
+        Ok(Self {connection: Arc::new(Mutex::new(connection))})
     }
 
     /*
@@ -62,7 +64,9 @@ impl MemoryService {
      */
     pub fn log_event(&self, role: &str, content: &str, tool_name: Option<&str>) -> Result<()> {
         let query = "INSERT INTO events (role, content, tool_name, created_at) VALUES (?1, ?2, ?3, ?4)";
-        self.connection.execute(query, params![role, content, tool_name, Utc::now().to_rfc3339()])?;
+        let conn = self.connection.lock().unwrap();
+
+        conn.execute(query, params![role, content, tool_name, Utc::now().to_rfc3339()])?;
         Ok(())
     }
 
@@ -70,7 +74,8 @@ impl MemoryService {
     Remove all events
      */
     pub fn clear_events(&self) -> Result<()> {
-        self.connection.execute("DELETE FROM events", [])?;
+        self.connection.lock().unwrap()
+            .execute("DELETE FROM events", [])?;
         Ok(())
     }
 
@@ -79,7 +84,8 @@ impl MemoryService {
      */
     pub fn get_role_content(&self) -> Result<Vec<(String, String)>> {
         let query = "SELECT role, content FROM events";
-        let mut prepared_statement = self.connection.prepare(query)?;
+        let conn = self.connection.lock().unwrap();
+        let mut prepared_statement = conn.prepare(query)?;
         let results = prepared_statement.query_map([], |row| {
             Ok((row.get(0)?, row.get(1)?))
         })?;
@@ -92,7 +98,8 @@ impl MemoryService {
      */
     pub fn get_events(&self) -> Result<Vec<MemoryEvent>> {
         let query = "SELECT id, role, content, tool_name, created_at FROM events";
-        let mut prepared_statement = self.connection.prepare(query)?;
+        let conn = self.connection.lock().unwrap();
+        let mut prepared_statement = conn.prepare(query)?;
         let results = prepared_statement.query_map([], |row| {
             Ok(MemoryEvent{
                 role: row.get(1)?,
@@ -109,7 +116,8 @@ impl MemoryService {
      */
     pub fn count_events(&self) -> Result<usize, String> {
         let query = "SELECT COUNT(*) FROM events";
-        self.connection.query_row(query, [], |row| {
+        let conn = self.connection.lock().unwrap();
+        conn.query_row(query, [], |row| {
                 let count: i64 = row.get(0)?;
                 Ok(count as usize)
             }).map_err(|e| e.to_string())
@@ -218,7 +226,7 @@ impl MemoryService {
         if let Err(e) = fs::write("memory/memory.md", summary) {
             return Err(format!("Error writing memory.md: {}", e));
         }
-        
+
         /*
         Delete all events
          */

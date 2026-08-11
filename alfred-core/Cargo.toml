@@ -24,3 +24,5 @@ audiopus = "0.2.0"
 symphonia = { version = "0.5", features = ["opt-simd", "mkv"] }
 base64 = "0.22.1"
 regex = "1.13.1"
+async-trait = "0.1.92"
+uuid = { version = "1.24.0", features = ["v4"] }

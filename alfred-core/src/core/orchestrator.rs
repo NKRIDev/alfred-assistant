@@ -30,6 +30,9 @@ impl Orchestrator {
         alfred.memory.log_event("user", user_input, None).ok();
 
         loop {
+            //FIX : clear null object
+            alfred.history.retain(|m| !m.is_null() && m.is_object());
+
             /*
             Call ollama service
             */
@@ -94,6 +97,9 @@ impl Orchestrator {
         alfred.memory.log_event("user", user_input, None).ok();
 
         loop {
+            //FIX : clear null object
+            alfred.history.retain(|m| !m.is_null() && m.is_object());
+            
             let response = match MistralService::chat(&Value::Array(alfred.history.clone()), &tools).await {
                 Ok(res) => res,
                 Err(err) => {

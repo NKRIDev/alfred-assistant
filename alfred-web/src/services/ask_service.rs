@@ -70,4 +70,22 @@ impl AskService {
         println!("[Micro Web] Message transcrit : {}", transcribed_text);
         self.ask(transcribed_text).await
     }
+
+    pub async fn process_wake_word_chunk(&self, audio_base64: String) -> Result<AlfredAskResponse, String> {
+        let audio_bytes = STANDARD.decode(audio_base64)
+            .map_err(|e| format!("Erreur décodage Base64 : {}", e))?;
+
+        let (samples, sample_rate) = MicroService::decode_webm_to_pcm(&audio_bytes)?;
+        let samples_16k = MicroService::resample_to_16k(&samples, sample_rate);
+
+        let transcribed_text = self.stt.transcribe(&samples_16k)?;
+        let lower_text = transcribed_text.to_lowercase();
+
+        if lower_text.contains("alfred") {
+            println!("[Wake Word] Mot-clé détecté dans : '{}'", transcribed_text);
+            self.ask(transcribed_text).await
+        } else {
+            Err("Mot-clé non présent.".into())
+        }
+    }
 }

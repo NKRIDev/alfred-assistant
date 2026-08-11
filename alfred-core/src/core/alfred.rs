@@ -53,6 +53,9 @@ impl Alfred {
     system context + the last 'max_messages' messages
      */
     pub fn trim_history(&mut self, max_messages: usize) {
+        //FIX : clear null object
+        self.history.retain(|m| !m.is_null() && m.is_object());
+
         if self.history.len() <= max_messages + 1 {
             return;
         }
@@ -62,5 +65,21 @@ impl Alfred {
         let mut trimmed = vec![system];
         trimmed.extend_from_slice(&self.history[tail_start..]);
         self.history = trimmed;
+    }
+
+    pub fn new_isolated(&self) -> Self {
+        let system_conv = json!({
+            "role": "system",
+            "content": self.system_prompt.clone(),
+        });
+        
+        Self {
+            model: self.model.clone(),
+            system_prompt: self.system_prompt.clone(),
+            registry: self.registry.clone(),
+            history: vec![system_conv],
+            memory: self.memory.clone(),
+            database_url: self.database_url.clone(),
+        }
     }
 }
