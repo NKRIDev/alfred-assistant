@@ -50,7 +50,13 @@ impl WatcherScheduler {
                         };
                         let summary = Orchestrator::ask_alfred(&prompt, &mut watcher_alfred).await;
 
-                        notifications.push(&event.source, &summary).await;
+                        /*
+                        Push notification only if the word "ras" is not present
+                         */
+                        let clean_summary = summary.trim();
+                        if !clean_summary.is_empty() && !clean_summary.eq_ignore_ascii_case("RAS") && !clean_summary.contains("RAS") {
+                            notifications.push(&event.source, clean_summary).await;
+                        }
                     }
                 }
             }

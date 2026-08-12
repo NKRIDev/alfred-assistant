@@ -15,11 +15,13 @@ use axum::routing::get;
 use tokio::sync::Mutex;
 use dotenvy::dotenv;
 use tower_http::cors::{Any, CorsLayer};
+use alfred_core::services::calendar::CalendarService;
 use alfred_core::services::gmail::GmailService;
 use alfred_core::services::google_auth::GoogleAuthService;
 use alfred_core::services::notification_store::NotificationStore;
 use alfred_core::services::stt::SttService;
 use alfred_core::services::tts::TtsService;
+use alfred_core::watchers::handlers::calendar::CalendarWatcher;
 use alfred_core::watchers::handlers::gmail::GmailWatcher;
 use alfred_core::watchers::scheduler::WatcherScheduler;
 use crate::controllers::notifications::notifications_handle;
@@ -64,11 +66,15 @@ async fn main() {
         env::var("GOOGLE_CLIENT_SECRET").expect("GOOGLE_CLIENT_SECRET manquant"),
         env::var("GOOGLE_REFRESH_TOKEN").expect("GOOGLE_REFRESH_TOKEN manquant"),
     );
-    let gmail_for_watcher = GmailService::new(google_auth);
+    let gmail_for_watcher = GmailService::new(google_auth.clone());
+    let calendar_for_watcher= CalendarService::new(google_auth);
     let notifications = NotificationStore::new();
     WatcherScheduler::start(
         shared_alfred.clone(),
-        vec![Box::new(GmailWatcher::new(gmail_for_watcher))],
+        vec![
+                        Box::new(CalendarWatcher::new(calendar_for_watcher)),
+            Box::new(GmailWatcher::new(gmail_for_watcher))
+        ],
         notifications.clone(),
         30,
     );
