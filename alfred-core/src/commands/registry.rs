@@ -3,6 +3,7 @@ Register assistant commands
  */
 use std::collections::HashMap;
 use std::env;
+use std::sync::Arc;
 use serde_json::Value;
 use crate::commands::command::CommandHandler;
 use crate::commands::handlers::calendar::create_event::CreateEventCommand;
@@ -25,8 +26,9 @@ use crate::services::gmail::GmailService;
 use crate::services::google_auth::GoogleAuthService;
 use crate::services::spotify::SpotifyService;
 
+#[derive(Clone)]
 pub struct CommandRegistry {
-    commands: HashMap<String, Box<dyn CommandHandler + Sync + Send>>,
+    commands: HashMap<String, Arc<dyn CommandHandler + Sync + Send>>,
 }
 
 impl CommandRegistry {
@@ -43,8 +45,8 @@ impl CommandRegistry {
     /*
     Register a new command with name and command handler interface
      */
-    pub fn register(&mut self, name: String, command: Box<dyn CommandHandler>) {
-        self.commands.insert(name, command);
+    pub fn register(&mut self, name: String, command: Box<dyn CommandHandler + Sync + Send>) {
+        self.commands.insert(name, Arc::from(command));
     }
 
     /*
