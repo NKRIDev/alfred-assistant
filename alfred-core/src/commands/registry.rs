@@ -14,6 +14,7 @@ use crate::commands::handlers::gmail::draft_reply::DraftReplyCommand;
 use crate::commands::handlers::gmail::list_unread_emails::ListUnreadEmailsCommand;
 use crate::commands::handlers::gmail::manage_email::ManageEmailCommand;
 use crate::commands::handlers::gmail::search_emails::SearchEmailsCommand;
+use crate::commands::handlers::morning::BriefingCommand;
 use crate::commands::handlers::open::OpenCommand;
 use crate::commands::handlers::quit::QuitCommand;
 use crate::commands::handlers::search::SearchCommand;
@@ -24,6 +25,7 @@ use crate::services::application::ApplicationService;
 use crate::services::calendar::CalendarService;
 use crate::services::gmail::GmailService;
 use crate::services::google_auth::GoogleAuthService;
+use crate::services::morning::MorningBriefingService;
 use crate::services::spotify::SpotifyService;
 
 #[derive(Clone)]
@@ -95,13 +97,13 @@ pub fn init_commands(app_service : ApplicationService) -> CommandRegistry{
     command_registry.register(String::from("list_unread_emails"), Box::new(ListUnreadEmailsCommand::new(gmail.clone())));
     command_registry.register(String::from("search_emails"), Box::new(SearchEmailsCommand::new(gmail.clone())));
     command_registry.register(String::from("manage_email"), Box::new(ManageEmailCommand::new(gmail.clone())));
-    command_registry.register(String::from("draft_reply"), Box::new(DraftReplyCommand::new(gmail)));
+    command_registry.register(String::from("draft_reply"), Box::new(DraftReplyCommand::new(gmail.clone())));
 
     let calendar = CalendarService::new(google_auth);
     command_registry.register(String::from("list_events"), Box::new(ListEventsCommand::new(calendar.clone())));
     command_registry.register(String::from("create_event"), Box::new(CreateEventCommand::new(calendar.clone())));
     command_registry.register(String::from("update_event"), Box::new(UpdateEventCommand::new(calendar.clone())));
-    command_registry.register(String::from("delete_event"), Box::new(DeleteEventCommand::new(calendar)));
+    command_registry.register(String::from("delete_event"), Box::new(DeleteEventCommand::new(calendar.clone())));
 
     /*
     Init spotify features
@@ -113,5 +115,11 @@ pub fn init_commands(app_service : ApplicationService) -> CommandRegistry{
     );
     command_registry.register(String::from("manage_music"), Box::new(ManageMusicCommand::new(spotify)));
 
+    /*
+    Morning briefing
+     */
+    let morning_briefing = MorningBriefingService::new(gmail, calendar);
+    command_registry.register(String::from("morning_briefing"), Box::new(BriefingCommand::new(morning_briefing)));
+    
     command_registry
 }

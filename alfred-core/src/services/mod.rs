@@ -12,3 +12,4 @@ pub mod calendar;
 pub mod google_auth;
 pub mod spotify;
 pub mod notification_store;
+pub mod morning;

@@ -6,3 +6,4 @@ pub mod search;
 pub mod gmail;
 pub mod calendar;
 pub mod spotify;
+pub mod morning;
